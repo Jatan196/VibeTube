@@ -1,20 +1,26 @@
 package com.jatan.yt.controllers;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.http.HttpHeaders;
+import java.util.List;
 import java.util.UUID;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.FileSystemResource;
 
-import org.apache.tomcat.util.file.ConfigurationSource.Resource;
-import org.apache.tomcat.util.http.parser.MediaType;
+import org.springframework.http.MediaType;
+import org.apache.catalina.connector.Response;
 import org.hibernate.type.TrueFalseConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -26,6 +32,8 @@ import com.jatan.yt.payload.CustomMessage;
 import com.jatan.yt.services.VideoService;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/v1/videos")
@@ -40,7 +48,9 @@ public class VideoController {
 
     // @PostMapping
     @PostMapping("/create")
-    public ResponseEntity<?> create(@RequestParam("file") MultipartFile file, @RequestParam("title") String title,
+    public ResponseEntity<?> create(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
             @RequestParam("desc") String description) {
 
         Video video = new Video();
@@ -63,6 +73,8 @@ public class VideoController {
 
     }
 
+    // url will be -->
+    // http://localhost:8080/api/v1/videos/stream/b571ef27-6121-4924-9668-61e0fa31d441
     @GetMapping("/stream/{videoId}")
     public ResponseEntity<Resource> stream(
             @PathVariable String videoId) {
@@ -75,36 +87,82 @@ public class VideoController {
             contentType = "application/octet-stream"; // it is default for multipart type
         }
 
-        FileSystemResource resource = new FileSystemResource(filePath);
-
+        Resource resource = new FileSystemResource(filePath);
+        if (!resource.exists()) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.parseMediaType(contentType))
                 .body(resource);
     }
 
-    // @GetMapping("/video/{videoId}")
-    // public ResponseEntity<Resource> getVideo(@PathVariable String videoId) {
-    //     try {
-    //         Resource resource = videoService.getVideo(videoId);
-    //         String contentType = Files.probeContentType(resource.getFile().toPath());
+    @GetMapping("/stream/range/{videoId}")
+    public ResponseEntity<Resource> streamVideoRange(
+            @PathVariable String videoId,
+            @RequestHeader(value = "Range", required = false) String range) {
+        System.out.println("range");
 
-    //         // Set default content type if null
-    //         if (contentType == null) {
-    //             contentType = "video/mp4";
-    //         }
+        Video video = videoService.get(videoId);
+        Path path = Paths.get(video.getFilePath());
 
-    //         // Validate content type
-    //         if (!contentType.startsWith("video/")) {
-    //             throw new IllegalArgumentException("Invalid content type: " + contentType);
-    //         }
+        Resource resource = new FileSystemResource(path);
 
-    //         return ResponseEntity
-    //                 .ok()
-    //                 .contentType(MediaType.parseMediaType(contentType))
-    //                 .body(resource);
-    //     } catch (IOException e) {
-    //         throw new RuntimeException("Could not determine file type.", e);
-    //     }
-    // }
+        String contentType = video.getContentType();
+
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        // file ki length
+        long fileLength = path.toFile().length();
+
+        if (range == null) {
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(resource); // will return the whole video
+        }
+
+        // Extracting and standardising the start and end pointers for video range
+        long rangeS, rangeE;
+
+        String[] ranges = range.replace("bytes ", "").split("-");
+
+        rangeS = Long.parseLong(ranges[0]);
+
+        if (ranges.length > 1) {
+            rangeE = Long.parseLong(ranges[1]);
+        } else {
+            rangeE = fileLength - 1;
+        }
+
+        if (rangeE > fileLength - 1)
+            rangeE = fileLength - 1;
+
+        InputStream inputStream;
+
+        try {
+            inputStream = Files.newInputStream(path); // its like pointer
+
+            inputStream.skip(rangeS);
+
+        } catch (IOException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+
+        long contentLength=rangeE-rangeS+1;
+
+        // Now we will add some headers for security purpose
+        HttpHeaders headers=new HttpHeaders(null);
+
+        headers.add("Content-Range","bytes "+rangeS+"-"+rangeE+)
+
+
+        return null;
+    }
+
+    @GetMapping("/getAll")
+    public List<Video> getAll() {
+        return videoService.getAll();
+    }
 }

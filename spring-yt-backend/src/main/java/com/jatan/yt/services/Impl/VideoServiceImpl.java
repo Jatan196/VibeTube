@@ -98,7 +98,7 @@ public class VideoServiceImpl implements VideoService {
 
     @Override
     public List<Video> getAll() {
-        return List.of();
+        return videoRepository.findAll();
     }
 
 }

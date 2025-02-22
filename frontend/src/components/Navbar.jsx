@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+
+
 const Navbar = ({ isLoggedIn }) => {
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -12,10 +14,13 @@ const Navbar = ({ isLoggedIn }) => {
                     <ul className="navbar-nav">
                         <li className="nav-item">
                             <Link className="nav-link" to="/">Home</Link>
-                        </li>
+                        </li>       
                         {isLoggedIn && (
                             <li className="nav-item">
-                                <Link className="nav-link" to="/upload">Upload Video</Link>
+                                {/* <Link className="nav-link" to="/upload" 
+                                    style={window.location.pathname === '/upload' ? {color: '#fff', fontWeight: 'bold'} : {}}>
+                                    Upload Video        
+                                </Link> */}
                             </li>
                         )}
                     </ul>

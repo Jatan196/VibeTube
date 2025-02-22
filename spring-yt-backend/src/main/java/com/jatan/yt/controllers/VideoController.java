@@ -2,21 +2,22 @@ package com.jatan.yt.controllers;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.http.HttpHeaders;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import org.apache.catalina.connector.Response;
 import org.hibernate.type.TrueFalseConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -101,6 +102,7 @@ public class VideoController {
     public ResponseEntity<Resource> streamVideoRange(
             @PathVariable String videoId,
             @RequestHeader(value = "Range", required = false) String range) {
+
         System.out.println("range");
 
         Video video = videoService.get(videoId);
@@ -126,7 +128,8 @@ public class VideoController {
         // Extracting and standardising the start and end pointers for video range
         long rangeS, rangeE;
 
-        String[] ranges = range.replace("bytes ", "").split("-");
+        String[] ranges = range.replace("bytes ", "").split("-"); // extracting from Standard format in which we will be
+                                                                  // recieving the range
 
         rangeS = Long.parseLong(ranges[0]);
 
@@ -135,7 +138,6 @@ public class VideoController {
         } else {
             rangeE = fileLength - 1;
         }
-
         if (rangeE > fileLength - 1)
             rangeE = fileLength - 1;
 
@@ -145,20 +147,32 @@ public class VideoController {
             inputStream = Files.newInputStream(path); // its like pointer
 
             inputStream.skip(rangeS);
+            long contentLength = rangeE - rangeS + 1;
+
+            byte[] data = new byte[(int) contentLength];
+            int read = inputStream.read(data, 0, data.length);
+
+            System.out.println("read(no of bytes)" + read);
+
+            // Now we will add some headers for security purpose
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.add("Content-Range", "bytes " + rangeS + "-" + rangeE + "/");
+            headers.add("Cache-Control", "no-cache");
+            headers.add("no-store", "must-revalidate");
+            headers.add("Expires", "0");
+            headers.add("X-Content-Type-Options", "nosniff");
+            headers.setContentLength(contentLength);
+
+            return ResponseEntity
+                    .status(HttpStatus.PARTIAL_CONTENT)     // since we are sending chunks
+                    .headers(headers)
+                    .contentType(MediaType.parseMediaType(contentType))
+                    .body(new ByteArrayResource(data));
 
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        long contentLength=rangeE-rangeS+1;
-
-        // Now we will add some headers for security purpose
-        HttpHeaders headers=new HttpHeaders(null);
-
-        headers.add("Content-Range","bytes "+rangeS+"-"+rangeE+)
-
-
-        return null;
     }
 
     @GetMapping("/getAll")

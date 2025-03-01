@@ -14,7 +14,9 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "video.js": "^8.21.0",
+    "videojs": "^1.0.0"
   },
   "scripts": {
     "start": "react-scripts start",

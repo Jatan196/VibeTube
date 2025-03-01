@@ -1,11 +1,11 @@
 package com.jatan.yt.services;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import org.springframework.web.multipart.MultipartFile;
 
 import com.jatan.yt.entities.Video;
-
 
 public interface VideoService {
     // save video
@@ -20,4 +20,7 @@ public interface VideoService {
     Video getByTitle(String title);
 
     List<Video> getAll();
+
+    // VIDEO processscing
+    String processVideo(String videoId);
 }

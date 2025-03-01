@@ -8,6 +8,8 @@ import Sidebar from './components/Sidebar.js';
 import { useState } from 'react';
 import UploadVideo from './components/UploadVideo';
 import ProtectedRoute from './components/ProtectedRoute';
+import VideoPlayer from './components/VideoPlayer';
+
 
 const router = createBrowserRouter([
   {
@@ -33,6 +35,10 @@ const router = createBrowserRouter([
       {
         path: '/upload',
         element: <UploadVideo />
+      },
+      {
+        path: '/video-player/:videoId',
+        element: <VideoPlayer />
       }
     ]
   }

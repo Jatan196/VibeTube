@@ -36,8 +36,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 @RestController
 @RequestMapping("/api/v1/videos")
+@CrossOrigin(origins = "http://localhost:3000") // Replace with your frontend's domain
 public class VideoController {
 
     private static final Logger logger = LoggerFactory.getLogger(VideoController.class);
@@ -46,7 +49,7 @@ public class VideoController {
     public VideoController(VideoService videoService) {
         this.videoService = videoService;
     }
-
+    
     // @PostMapping
     @PostMapping("/create")
     public ResponseEntity<?> create(
@@ -103,7 +106,7 @@ public class VideoController {
             @PathVariable String videoId,
             @RequestHeader(value = "Range", required = false) String range) {
 
-        System.out.println("range");
+        System.out.println("-----------STREAMING THE VIDEO APPLICATION-----------");
 
         Video video = videoService.get(videoId);
         Path path = Paths.get(video.getFilePath());
@@ -138,8 +141,7 @@ public class VideoController {
         } else {
             rangeE = fileLength - 1;
         }
-        if (rangeE > fileLength - 1)
-            rangeE = fileLength - 1;
+        rangeE = Math.min(rangeE, fileLength - 1);
 
         InputStream inputStream;
 
@@ -165,10 +167,10 @@ public class VideoController {
             headers.setContentLength(contentLength);
 
             return ResponseEntity
-                    .status(HttpStatus.PARTIAL_CONTENT)     // since we are sending chunks
+                    .status(HttpStatus.PARTIAL_CONTENT) // since we are sending chunks
                     .headers(headers)
                     .contentType(MediaType.parseMediaType(contentType))
-                    .body(new ByteArrayResource(data));
+                    .body(new ByteArrayResource(data));// why to not Resource
 
         } catch (IOException ex) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

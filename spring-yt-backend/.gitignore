@@ -1,10 +1,12 @@
 HELP.md
 target/
-# videos/
-# videos_hls/
+z
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+
+/spring-yt-backend/videos
+/spring-yt-backend/videos_hls
 
 ### STS ###
 .apt_generated

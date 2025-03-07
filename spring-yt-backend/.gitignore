@@ -5,8 +5,8 @@ z
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-/spring-yt-backend/videos
-/spring-yt-backend/videos_hls
+/videos
+/videos_hls
 
 ### STS ###
 .apt_generated

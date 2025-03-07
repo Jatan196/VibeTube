@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -88,7 +90,9 @@ public class VideoServiceImpl implements VideoService {
             video.setFilePath(path.toString());
 
             // processing video
-            processVideo(video.getVideoId());
+            System.out.println(video.getVideoId());
+    
+            processVideo(video);
 
             // delete the actual file , if any error occurs in above processing of videos
 
@@ -119,54 +123,52 @@ public class VideoServiceImpl implements VideoService {
     }
 
     @Override
-    public String processVideo(String videoId) {
-        // path where to store data(HLS Playlist)
+    public String processVideo(Video video) {
+        // Retrieve video metadata from DB
+        // Video video = this.get(videoId);
+        String vId = video.getVideoId();
+        if (video == null) {
+            System.out.println("Video not found: " + vId);
+            return null;
+        }
 
-        Video video = this.get(videoId);
-        String filePath = video.getFilePath(); // it is coming from DB that'why stored in String format
-
-        Path videoPath = Paths.get(filePath);
-
-        // String output360px=HLS_DIR+videoId+"/360px/";
-        // String output720px=HLS_DIR+videoId+"/720px/";
-        // String output1080px=HLS_DIR+videoId+"/1080px/";
+        String inputFilePath = video.getFilePath();
+        Path outputPath = Paths.get(HLS_DIR, vId);
 
         try {
-            // Files.createDirectories(Paths.get(output360px));
-            // Files.createDirectories(Paths.get(output720px));
-            // Files.createDirectories(Paths.get(output1080px));
-            // ffmpeg commmands
-            Path outputPath = Paths.get(HLS_DIR, videoId);
-
-            System.out.println("Started processing video");
+            // Create HLS directory if it doesn't exist
             Files.createDirectories(outputPath);
-            // String ffmpegCmd = "ffmpeg -i " + inputFile
-            // + " -codec: copy -start_number 0 -hls_time 10 -hls_list_size 0 -f hls
-            // output.m3u8";
 
+            // FFmpeg command to generate HLS playlist
             String ffmpegCmd = String.format(
-                    "ffmpeg -i \"%s\" -c:v libx264 -c:a aac -strict -2 -f hls -hls_time 10 -hls_list_size 0 -hls_segment_filename \"%s/segment_%%3d.ts\"  \"%s/master.m3u8\" ",
-                    videoPath, outputPath, outputPath);
+                    "ffmpeg -i \"%s\" -c:v libx264 -c:a aac -strict -2 -f hls -hls_time 10 " +
+                            "-hls_list_size 0 -hls_segment_filename \"%s/segment_%%3d.ts\" \"%s/master.m3u8\"",
+                    inputFilePath, outputPath.toString(), outputPath.toString());
 
-            ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "-c", ffmpegCmd);
+            // // "ffmpeg -i \"%s\" -c:v libx264 -c:a aac -strict -2 -f hls -hls_time 10
+            // // -hls_list_size 0 -hls_segment_filename \"%s/segment_%%3d.ts\"
+            // // \"%s/master.m3u8\" ",
+
+            System.out.println("Starting video processing...");
+            ProcessBuilder processBuilder = new ProcessBuilder("cmd.exe", "/c", ffmpegCmd);
+
             processBuilder.inheritIO();
 
             Process process = processBuilder.start();
+            int exitCode = process.waitFor();
 
-            int exit = process.waitFor(); // this method also returns an exception
-
-            if (exit != 0) {
-                throw new RuntimeException("video processing failed!!");
+            if (exitCode != 0) {
+                throw new RuntimeException("FFmpeg video processing failed!");
             }
 
-            System.out.println("Completely processed");
-            return videoId;
-        } catch (IOException IO) {
-            // TODO: handle exception
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println("Video processing completed successfully.");
+            return vId;
+
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
         }
-        return null;
     }
 
+    
 }

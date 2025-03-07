@@ -109,7 +109,7 @@ function VideoUpload() {
         if (videoId) {
             console.log(videoId);
             setVideoSrc(`http://localhost:8080/api/v1/videos/stream/${videoId}`);
-            setShowPlayer(true);
+            setShowPlayer(true); 
 
             window.history.pushState(null, '', `/stream/videoId=${videoId}`);
         }
@@ -226,7 +226,7 @@ function VideoUpload() {
                     >
                         Back to Upload
                     </Button>
-                     <p>jatannn</p>
+          
                     <VideoPlayer src={videoSrc} />
                 </div>  
             )}

@@ -210,7 +210,7 @@ public class VideoController {
         // construct segment path
         Path path = Paths.get(HLS_DIR, videoId, segment + ".ts");
 
-        if (!Files.exists(path)){
+        if (!Files.exists(path)) {
             System.out.println("Jatannn");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

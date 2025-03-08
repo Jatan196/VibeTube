@@ -8,7 +8,7 @@ import {
     Textarea,
     Progress,
     Alert,
-} from "flowbite-react";
+} from "flowbite-react";    
 import axios from "axios";
 import toast from "react-hot-toast";
 import VideoPlayer from './VideoPlayer.jsx'; 
@@ -39,15 +39,31 @@ function VideoUpload() {
             [event.target.name]: event.target.value,
         });
     }
+    const handleUploadNew = () => {
+        // Reset videoId and videoSrc
+        setVideoId(null);
+        setVideoSrc('');
+        setShowPlayer(false)
+        // Clean the window's path/route
+
+        console.log("Setting the path back to previous")
+
+        window.history.back();
+
+      //  window.history.pushState({}, document.title, window.location.pathname);
+        
+        // Optionally, reset the form
+        // resetForm();
+    };
 
     function handleForm(formEvent) {
         formEvent.preventDefault();
         if (!selectedFile) {
             alert("Select File !!");
             return;
-        }
-        //submit the file to server:
-        saveVideoToServer(selectedFile, meta);
+        } 
+        //submit the file to server: 
+        saveVideoToServer(selectedFile, meta); 
     }
 
     function resetForm() {
@@ -108,7 +124,7 @@ function VideoUpload() {
     const handleStreamNow = async () => {
         if (videoId) {
             console.log(videoId);
-            setVideoSrc(`http://localhost:8080/api/v1/videos/stream/${videoId}`);
+            setVideoSrc(`http://localhost:8080/api/v1/videos/${videoId}/master.m3u8`);
             setShowPlayer(true); 
 
             window.history.pushState(null, '', `/stream/videoId=${videoId}`);
@@ -126,7 +142,7 @@ function VideoUpload() {
                             noValidate
                             className=" flex flex-col space-y-6"
                             onSubmit={handleForm}
-                        >
+                        > 
                             <div>
                                 <div className="mb-2 block">
                                     <Label htmlFor="file-upload" value="Video Title" />
@@ -202,7 +218,7 @@ function VideoUpload() {
                             </div>
 
                             <div className=" text-red-500">
-                                <Button disabled={uploading} type="submit" className="bg-red-500 text-white">
+                                <Button disabled={uploading} type="submit" className="p-2 bg-red-500 text-white">
                                     Submit
                                 </Button>
 
@@ -221,17 +237,20 @@ function VideoUpload() {
             ) : (
                 <div className="mt-4">
                     <Button 
-                        onClick={() => setShowPlayer(false)}
+                        onClick={handleUploadNew}
                         className="mb-4 bg-gray-500 text-white"
                     >
                         Back to Upload
                     </Button>
           
-                    <VideoPlayer src={videoSrc} />
+                    <VideoPlayer src={videoSrc}/>
                 </div>  
             )}
         </div>
     );
 }
+
+
+// videoSrc
 
 export default VideoUpload;

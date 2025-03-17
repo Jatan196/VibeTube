@@ -1,64 +1,64 @@
-# HELP.md
-# target/
-# z
-# !.mvn/wrapper/maven-wrapper.jar
-# !**/src/main/**/target/
-# !**/src/test/**/target/
+HELP.md
+target/
+z
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
+D:\in\namaste react\ytb\spring-yt-backend\src\main\resources\application.properties
 
+/videos
+/videos_hls
 
-# /videos
-# /videos_hls
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
 
-# ### STS ###
-# .apt_generated
-# .classpath
-# .factorypath
-# .project
-# .settings
-# .springBeans
-# .sts4-cache
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
 
-# ### IntelliJ IDEA ###
-# .idea
-# *.iws
-# *.iml
-# *.ipr
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
 
-# ### NetBeans ###
-# /nbproject/private/
-# /nbbuild/
-# /dist/
-# /nbdist/
-# /.nb-gradle/
-# build/
-# !**/src/main/**/build/
-# !**/src/test/**/build/
+### VS Code ###
+.vscode/
 
-# ### VS Code ###
-# .vscode/
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
 
-# # dependencies
-# /node_modules
-# /.pnp
-# .pnp.js
+# testing
+/coverage
 
-# # testing
-# /coverage
+# production
+/build
 
-# # production
-# /build
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# # misc
-# .DS_Store
-# .env.local
-# .env.development.local
-# .env.test.local
-# .env.production.local
-
-# npm-debug.log*
-# yarn-debug.log*
-# yarn-error.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 

@@ -12,9 +12,10 @@ public class SpringYtBackendspringYtBackendApplication {
 
 	public static void main(String[] args) {
 
-		SpringApplication.run(SpringYtBackendspringYtBackendApplication.class, args);
+		SpringApplication.run(SpringYtBackendspringYtBackendApplication.class, args); // it runs the IOC container for
+																						// dependency injections
 		System.out.println("heloooo bhaiya");
 
 	}
 
-} 
+}

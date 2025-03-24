@@ -223,4 +223,13 @@ public class VideoController {
                         HttpHeaders.CONTENT_TYPE, "video/mp2t")
                 .body(resource);
     }
+
+    @PostMapping
+    public ResponseEntity<?> uploadS3(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("title") String title,
+            @RequestParam("desc") String description) {
+
+        return null;
+    }
 }

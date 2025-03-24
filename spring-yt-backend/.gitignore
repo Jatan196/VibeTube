@@ -7,6 +7,7 @@ z
 
 /videos
 /videos_hls
+ytb/spring-yt-backend/src/main/resources/application.properties
 
 ### STS ###
 .apt_generated

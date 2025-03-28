@@ -7,21 +7,20 @@ import org.springframework.context.annotation.Configuration;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
-
 
 @Configuration
 public class S3Config {
 
-    @Value("cloud.aws.credentials.access-key")
+    @Value("${cloud.aws.credentials.access-key}")
     private String awsAccessKey;
 
-    @Value("cloud.aws.credentials.secret-key")
+    @Value("${cloud.aws.credentials.secret-key}")
     private String awsSecretKey;
 
-    @Value("jatan.aws.region.static")
+    @Value("${jatan.aws.region.static}")
     private String region;
 
     @Bean
@@ -37,7 +36,7 @@ public class S3Config {
 
         AmazonS3 amazonS3 = AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(crd))
-                .withRegion(region)
+                .withRegion(Regions.AP_SOUTH_1) // Correct region
                 .build();
 
         return amazonS3;

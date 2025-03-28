@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.jatan.yt")
-@EntityScan("com.jatan.yt.entities")
+// @ComponentScan(basePackages = "com.jatan.yt")
+// @EntityScan("com.jatan.yt.entities")
 public class SpringYtBackendspringYtBackendApplication {
 
 	public static void main(String[] args) {

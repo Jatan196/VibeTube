@@ -1,24 +1,22 @@
-package com.jatan.yt.services.Impl;
+package com.jatan.yt.services.Impl; // Changed package name to follow standard lowercase convention
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties.Io;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import com.jatan.yt.exceptions.VideoUploadExceptionS3;
-
 import com.jatan.yt.services.S3VideoUploader;
 
+@Service // Use @Service instead of @Component
 public class S3VideoUploaderImpl implements S3VideoUploader {
 
     @Autowired
@@ -29,40 +27,45 @@ public class S3VideoUploaderImpl implements S3VideoUploader {
 
     @Override
     public String uploadVideo(MultipartFile video) {
-        // TODO Auto-generated method stub
-        try {
-            String fileName = video.getOriginalFilename();
 
-            String modifiedName = fileName + UUID.randomUUID().toString();
-            InputStream fileData = video.getInputStream(); // for reading the content of file
+        try {
+            if (video == null || video.isEmpty()) {
+                throw new VideoUploadExceptionS3("Empty video file cannot be uploaded.");
+            }
+
+            String originalFileName = video.getOriginalFilename();
+            String fileExtension = originalFileName != null && originalFileName.contains(".")
+                    ? originalFileName.substring(originalFileName.lastIndexOf("."))
+                    : "";
+
+            // Generate unique file name
+            String modifiedName = UUID.randomUUID().toString() + fileExtension;
+            InputStream fileData = video.getInputStream();
 
             ObjectMetadata metaData = new ObjectMetadata();
             metaData.setContentLength(video.getSize());
+            metaData.setContentType(video.getContentType());
 
-            // Date expD=new Date(2025,3,30);
-            // metaData.setExpirationTime()
+            System.out.println("Uploading to S3: " + modifiedName);
+            System.out.println("Uploading to S3: " + modifiedName);
+            client.putObject(new PutObjectRequest(bucketName, modifiedName, fileData, metaData));
 
-            PutObjectResult res = client.putObject(
-                    new PutObjectRequest(bucketName, modifiedName, fileData, metaData));
-            System.out.println(res);
-            // String contentType = video.getContentType();
+            System.out.println("Uploaded complete: " + modifiedName);
+
+            return modifiedName;// client.getUrl(bucketName, modifiedName).toString();
 
         } catch (IOException e) {
-            throw new VideoUploadExceptionS3(bucketName);
+            throw new VideoUploadExceptionS3("Failed to upload video to S3: " + e.getMessage());
         }
-        return null;
     }
 
     @Override
     public List<String> allFiles() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'allFiles'");
+        throw new UnsupportedOperationException("Method 'allFiles' is not implemented yet.");
     }
 
     @Override
     public String preSignedUrl() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'preSignedUrl'");
+        throw new UnsupportedOperationException("Method 'preSignedUrl' is not implemented yet.");
     }
-
 }

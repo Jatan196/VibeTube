@@ -12,5 +12,5 @@ public interface S3VideoUploader {
 
     List<String> allFiles();
 
-    String preSignedUrl();// provide timed access to videos on s3
+    String preSignedUrl(String fileName);// provide timed access to videos on s3
 }

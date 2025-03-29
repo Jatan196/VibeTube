@@ -3,6 +3,7 @@ package com.jatan.yt.controllers;
 import org.hibernate.event.spi.ResolveNaturalIdEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,4 +31,16 @@ public class S3Controller {
         return ResponseEntity.ok(uploader.uploadVideo(f));
     }
 
+    @GetMapping("getTempUrl")
+    public ResponseEntity<?> getPreSignedURL(
+            @RequestParam("fileName") String fileName) {
+        if (fileName == null)
+            return ResponseEntity.status(402).body("Invalid File Name");
+
+        String url = uploader.preSignedUrl(fileName);
+
+        System.out.println(url);
+
+        return ResponseEntity.status(200).body("URL is - " + url);
+    }
 }

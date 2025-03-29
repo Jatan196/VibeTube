@@ -2,6 +2,8 @@ package com.jatan.yt.services.Impl; // Changed package name to follow standard l
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.sql.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -10,7 +12,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.jatan.yt.exceptions.VideoUploadExceptionS3;
@@ -52,20 +56,36 @@ public class S3VideoUploaderImpl implements S3VideoUploader {
 
             System.out.println("Uploaded complete: " + modifiedName);
 
-            return modifiedName;// client.getUrl(bucketName, modifiedName).toString();
+            return this.preSignedUrl(originalFileName);// modifiedName;// client.getUrl(bucketName,
+                                                       // modifiedName).toString();
 
         } catch (IOException e) {
             throw new VideoUploadExceptionS3("Failed to upload video to S3: " + e.getMessage());
         }
     }
-
+  
     @Override
     public List<String> allFiles() {
         throw new UnsupportedOperationException("Method 'allFiles' is not implemented yet.");
     }
 
     @Override
-    public String preSignedUrl() {
-        throw new UnsupportedOperationException("Method 'preSignedUrl' is not implemented yet.");
+    public String preSignedUrl(String fileName) {
+
+        Date expirationDate = new Date(0);
+
+        long time = expirationDate.getTime();
+        int duration = 2; // in hours
+
+        time = time + duration * 60 * 60 * 1000;
+        expirationDate.setTime(time);
+
+        GeneratePresignedUrlRequest reqObj = new GeneratePresignedUrlRequest(bucketName, fileName)
+                .withMethod(HttpMethod.GET)
+                .withExpiration(expirationDate);
+
+        URL url = client.generatePresignedUrl(reqObj);
+
+        return url.toString();
     }
 }

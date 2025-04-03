@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { toggleBar } from "../utils/appSlice";
 import { Link } from "react-router-dom";
 
-
 const Header = ({ isLoggedIn }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchList, setSearchList] = useState([]);
@@ -23,6 +22,7 @@ const Header = ({ isLoggedIn }) => {
 
   const apiCall = async () => {
     try {
+      console.log("Search for -> ", searchQuery);
       const response = await fetch(
         `https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${searchQuery}&key=${YOUTUBE_API_KEY}`
       );
@@ -42,7 +42,7 @@ const Header = ({ isLoggedIn }) => {
   };
 
   return (
-    <div className="grid grid-flow-col p-5 m-2 shadow-lg">
+    <div className="grid grid-flow-col p-5 m-2 shadow-lg relative border-x-2">
       {/* Left Section: Menu and YT Icon */}
       <div className="flex items-center gap-x-4">
         <img
@@ -59,7 +59,7 @@ const Header = ({ isLoggedIn }) => {
       </div>
 
       {/* Middle Section: Search Bar */}
-      <div>
+      <div className="relative">
         <div className="flex items-center space-x-0">
           <input
             type="text"
@@ -72,40 +72,33 @@ const Header = ({ isLoggedIn }) => {
             <img
               className="w-8 h-8 object-contain rounded-r-full border-2"
               alt="search icon"
-              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAflBMVEX///8AAADi4uLo6Oj5+fns7OyZmZnv7+/R0dHa2tqWlpb19fWzs7OJiYnb29uSkpI1NTWjo6O7u7vHx8daWloaGhp/f3+tra1wcHAMDAxHR0c9PT1iYmKDg4MnJyfDw8MsLCxxcXFDQ0MTExNSUlIiIiJnZ2c4ODimpqYRERGLRUn5AAAG5UlEQVR4nO2diXbiOgyGIQskJWGnFChbC53O+7/gHRp6D8W..."
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADh..."
             />
           </button>
         </div>
 
-        {/* Suggestions */}
-        <div className="bg-white shadow-lg rounded-md mt-2 max-w-sm">
-          {searchList.map((item, index) => (
-            <div
-              key={index}
-              className="px-2 py-1 hover:bg-gray-200 cursor-pointer"
-            >
-              {item}
-            </div>
-          ))}
-        </div>
+        {/* Suggestions - Overflowing from the Header */}
+        {searchList.length > 0 && (
+          <div className="absolute left-0 w-80 bg-white shadow-lg rounded-md mt-2 z-50">
+            {searchList.map((item, index) => (
+              <div key={index} className="px-2 py-1 hover:bg-gray-200 cursor-pointer">
+                {item}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Add the Upload link if user is logged in */}  
-      {isLoggedIn && window.location.pathname !== '/upload' && (
+      {/* Add the Upload link if user is logged in */}
+      {isLoggedIn && window.location.pathname !== "/upload" && (
         <div className="flex items-center space-x-6">
-          <Link 
-            to="/"
-            className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors"
-          >
+          <Link to="/" className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
             </svg>
             Home
           </Link>
-          <Link 
-            to="/upload"
-            className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors"
-          >
+          <Link to="/upload" className="text-gray-700 hover:text-gray-900 font-medium flex items-center gap-2 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
               <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
             </svg>

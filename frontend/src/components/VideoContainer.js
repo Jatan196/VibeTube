@@ -23,16 +23,14 @@ const VideoContainer = () => {
     // }
 
     const getVideos = async () => {
-        try {
+        try {   
             const raw = await fetch(YOUTUBE_API_URL);
 
             const data = await raw.json();
 
-            console.log(data.items);
-            setVideos(data.items);
-            // setVideos([1, 2, 3, 4, 5]);
-
-
+            console.log(data);
+           setVideos(data.items);
+          
         } catch (error) {
             console.error("Error fetching videos:", error);
         }
